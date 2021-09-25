@@ -69,8 +69,8 @@ public class Streamer {
         this.viewCount = viewCount;
     }
 
-    public String getJoined() {
-        return joined.toString();
+    public Date getJoined() {
+        return joined;
     }
 
     public void setJoined(Date joined) {
