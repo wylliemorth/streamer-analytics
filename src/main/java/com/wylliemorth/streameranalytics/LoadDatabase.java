@@ -15,10 +15,9 @@ class LoadDatabase {
 
     @Bean
     CommandLineRunner initDatabase(StreamerRepository repository) {
-
         return args -> {
-            log.info("Preloading " + repository.save(new Streamer("HazyAlex", StreamerType.NONE, "", UserType.NONE, 100, new Date())));
-            log.info("Preloading " + repository.save(new Streamer("Someone", StreamerType.NONE, "", UserType.NONE, 420, new Date())));
+            log.info("Preloading " + repository.save(new Streamer("HazyAlex", StreamerType.NONE, "", UserType.NONE, 100, new Date(), "Hello")));
+            log.info("Preloading " + repository.save(new Streamer("Someone", StreamerType.NONE, "", UserType.NONE, 420, new Date(), "Goodbye")));
         };
     }
 }
