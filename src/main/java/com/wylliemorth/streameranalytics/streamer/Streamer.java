@@ -1,20 +1,23 @@
-package com.wylliemorth.streameranalytics;
+package com.wylliemorth.streameranalytics.streamer;
 
-import com.fasterxml.jackson.annotation.JsonAlias;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.wylliemorth.streameranalytics.stream.Stream;
 
+import javax.persistence.CascadeType;
 import javax.persistence.Entity;
 import javax.persistence.Id;
+import javax.persistence.OneToMany;
 import java.io.Serializable;
 import java.util.Date;
+import java.util.List;
 
 @Entity
 public class Streamer implements Serializable {
 
-    @JsonAlias({"display_name", "name"})
+    @JsonProperty("display_name")
     private @Id String name;
 
-    @JsonAlias({"broadcaster_type", "streamer_type"})
+    @JsonProperty("broadcaster_type")
     private StreamerType streamerType;
 
     @JsonProperty("profile_image_url")
@@ -23,8 +26,10 @@ public class Streamer implements Serializable {
     private UserType type;
     private Integer viewCount;
     private Date joined;
-
     private String description;
+
+    @OneToMany(cascade = {CascadeType.ALL})
+    private List<Stream> streams;
 
     public Streamer() {}
 
@@ -32,7 +37,7 @@ public class Streamer implements Serializable {
         this.name = name;
     }
 
-    public Streamer(String name, StreamerType streamerType, String profileImage, UserType type, Integer viewCount, Date joined, String description) {
+    public Streamer(String name, StreamerType streamerType, String profileImage, UserType type, Integer viewCount, Date joined, String description, List<Stream> streams) {
         this.name = name;
         this.streamerType = streamerType;
         this.profileImage = profileImage;
@@ -40,6 +45,7 @@ public class Streamer implements Serializable {
         this.viewCount = viewCount;
         this.joined = joined;
         this.description = description;
+        this.streams = streams;
     }
 
     public String getName() {

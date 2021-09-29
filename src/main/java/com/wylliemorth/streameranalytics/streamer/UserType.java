@@ -1,4 +1,4 @@
-package com.wylliemorth.streameranalytics;
+package com.wylliemorth.streameranalytics.streamer;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 

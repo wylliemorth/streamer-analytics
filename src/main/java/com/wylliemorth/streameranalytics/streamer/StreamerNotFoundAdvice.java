@@ -1,4 +1,4 @@
-package com.wylliemorth.streameranalytics;
+package com.wylliemorth.streameranalytics.streamer;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.ControllerAdvice;

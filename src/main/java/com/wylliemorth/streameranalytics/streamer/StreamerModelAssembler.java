@@ -1,5 +1,7 @@
-package com.wylliemorth.streameranalytics;
+package com.wylliemorth.streameranalytics.streamer;
 
+import com.wylliemorth.streameranalytics.streamer.Streamer;
+import com.wylliemorth.streameranalytics.streamer.StreamerController;
 import org.springframework.hateoas.EntityModel;
 import org.springframework.hateoas.server.RepresentationModelAssembler;
 import org.springframework.stereotype.Component;

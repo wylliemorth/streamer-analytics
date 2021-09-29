@@ -1,6 +1,5 @@
-package com.wylliemorth.streameranalytics;
+package com.wylliemorth.streameranalytics.streamer;
 
-import org.hibernate.EntityMode;
 import org.springframework.hateoas.CollectionModel;
 import org.springframework.hateoas.EntityModel;
 import org.springframework.hateoas.IanaLinkRelations;
@@ -8,7 +7,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.*;
 
-import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
 
