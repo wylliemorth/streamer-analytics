@@ -6,6 +6,7 @@ import com.wylliemorth.streameranalytics.requests.TwitchRestService;
 import com.wylliemorth.streameranalytics.streamer.StreamerRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.core.env.Environment;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
@@ -19,14 +20,12 @@ public class ScheduledTasks {
     private static final Logger log = LoggerFactory.getLogger(ScheduledTasks.class);
     private static final SimpleDateFormat dateFormat = new SimpleDateFormat("HH:mm:ss");
     private static final int FETCH_STREAMS_RATE = 15000; // FIXME: change to 1 minute
-    private static final int FETCH_USERS_RATE = 5000; // FIXME: change to 60 minutes
-    private final StreamerRepository streamerRepository;
+    private static final int FETCH_USERS_RATE = 55000; // FIXME: change to 60 minutes
     private final TwitchRestService restService;
 
     private List<Stream> activeStreams;
 
-    public ScheduledTasks(StreamerRepository streamerRepository, TwitchRestService restService) {
-        this.streamerRepository = streamerRepository;
+    public ScheduledTasks(TwitchRestService restService) {
         this.restService = restService;
         this.activeStreams = new ArrayList<>();
     }
@@ -36,10 +35,12 @@ public class ScheduledTasks {
         log.info("{} Fetching stream data...", dateFormat.format(new Date()));
 
         List<Stream> streams = restService.getActiveStreams();
-        if (streams != null) {
-            for (Stream s: streams){
-                log.info(s.toString());
-            }
+        if (streams == null) {
+            return;
+        }
+
+        for (Stream s: streams){
+            log.info(s.toString());
         }
 
         log.info("{} Finished fetching stream data...", dateFormat.format(new Date()));

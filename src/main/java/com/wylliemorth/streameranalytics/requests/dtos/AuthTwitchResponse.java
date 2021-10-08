@@ -1,8 +1,16 @@
 package com.wylliemorth.streameranalytics.requests.dtos;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 public class AuthTwitchResponse {
+
+    @JsonProperty("access_token")
     private String accessToken;
+
+    @JsonProperty("expires_in")
     private String expiresIn;
+
+    @JsonProperty("token_type")
     private String tokenType;
 
     public AuthTwitchResponse() {
@@ -36,5 +44,14 @@ public class AuthTwitchResponse {
 
     public void setTokenType(String tokenType) {
         this.tokenType = tokenType;
+    }
+
+    @Override
+    public String toString() {
+        return "AuthTwitchResponse{" +
+                "accessToken='" + accessToken + '\'' +
+                ", expiresIn='" + expiresIn + '\'' +
+                ", tokenType='" + tokenType + '\'' +
+                '}';
     }
 }

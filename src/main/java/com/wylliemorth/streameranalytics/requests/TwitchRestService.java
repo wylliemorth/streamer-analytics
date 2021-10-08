@@ -1,5 +1,6 @@
 package com.wylliemorth.streameranalytics.requests;
 
+import com.wylliemorth.streameranalytics.requests.dtos.AuthTwitchResponse;
 import com.wylliemorth.streameranalytics.stream.Stream;
 import com.wylliemorth.streameranalytics.streamer.Streamer;
 import com.wylliemorth.streameranalytics.requests.dtos.StreamTwitchResponse;
@@ -7,6 +8,7 @@ import com.wylliemorth.streameranalytics.requests.dtos.StreamerTwitchResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.web.client.RestTemplateBuilder;
+import org.springframework.core.env.Environment;
 import org.springframework.http.*;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.HttpClientErrorException;
@@ -17,23 +19,62 @@ import java.util.List;
 
 @Service
 public class TwitchRestService {
-    private final RestTemplate restTemplate;
-    private final static String API_USERS = "https://api.twitch.tv/helix/users?login=stevenbh&login=asmongold&login=jblow";
+    private final static String API_USERS = "https://api.twitch.tv/helix/users?login=stevenbh&login=esl_csgo";
     private final static String API_STREAMS = "https://api.twitch.tv/helix/streams?user_login=esl_csgo";
+    private final static String API_AUTH = "https://id.twitch.tv/oauth2/token?client_id=%s&client_secret=%s&grant_type=client_credentials";
     private static final Logger log = LoggerFactory.getLogger(TwitchRestService.class);
 
-    public TwitchRestService(RestTemplateBuilder restTemplateBuilder) {
+    private final Environment environment;
+    private final RestTemplate restTemplate;
+
+    private String oauthToken;
+
+    public TwitchRestService(Environment environment, RestTemplateBuilder restTemplateBuilder) {
         this.restTemplate = restTemplateBuilder.build();
+        this.environment = environment;
+        this.oauthToken = null;
+    }
+
+    private boolean twitchAuthRequest() {
+        String clientId = this.environment.getProperty("twitch-client-id");
+        String clientSecret = this.environment.getProperty("twitch-client-secret");
+        String url = String.format(API_AUTH, clientId, clientSecret);
+        HttpEntity<?> request = new HttpEntity<>(new HttpHeaders());
+
+        try {
+            AuthTwitchResponse response = this.restTemplate.postForObject(url, request, AuthTwitchResponse.class);
+            if (response == null) {
+                log.error("Auth: response came null!");
+                return false;
+            }
+
+            this.oauthToken = response.getAccessToken();
+        } catch (HttpClientErrorException e) {
+            log.error("HTTP Error while getting authentication token! {}", e.getMessage());
+            return false;
+        }
+
+        return true;
     }
 
     public List<Streamer> getStreamers() {
-        HttpHeaders headers = new HttpHeaders();
-        headers.set("Authorization", "Bearer <token>");
-        headers.set("Client-id", "<client id>");
+        if (this.oauthToken == null) {
+            // Auth request to get token
+            log.info("Getting new oauth token...");
+            if (!this.twitchAuthRequest()) {
+                log.error("Aborted fetching streamers!");
+                return null;
+            }
+
+            log.info("Success getting new authentication token! " + this.oauthToken);
+        }
 
         try {
-            HttpEntity<?> request = new HttpEntity<>(headers);
+            HttpHeaders headers = new HttpHeaders();
+            headers.set("Authorization", "Bearer " + this.oauthToken);
+            headers.set("Client-Id", environment.getProperty("twitch-client-id"));
 
+            HttpEntity<?> request = new HttpEntity<>(headers);
             ResponseEntity<StreamerTwitchResponse> response = this.restTemplate.exchange(
                     API_USERS,
                     HttpMethod.GET,
@@ -41,23 +82,36 @@ public class TwitchRestService {
 
             StreamerTwitchResponse twitchResponse = response.getBody();
             if (twitchResponse == null) {
-                log.error("Response body came null!");
+                log.error("Get streamers: response body came null!");
                 return null;
             }
 
             return twitchResponse.getStreamers();
         } catch (HttpClientErrorException e) {
+            // FIXME need to differentiate from authentication errors
             log.error("Error fetching streamer data! {}", e.getMessage());
             return null;
         }
     }
 
     public List<Stream> getActiveStreams() {
-        HttpHeaders headers = new HttpHeaders();
-        headers.set("Authorization", "Bearer <token>");
-        headers.set("Client-Id", "<client id>");
+        if (this.oauthToken == null) {
+            // Auth request to get token
+            log.info("Getting new oauth token...");
+            boolean success = this.twitchAuthRequest();
+            if (!success) {
+                log.error("Aborted fetching streamers!");
+                return null;
+            }
+
+            log.info("Success getting new authentication token!" + this.oauthToken);
+        }
 
         try {
+            HttpHeaders headers = new HttpHeaders();
+            headers.set("Authorization", "Bearer " + this.oauthToken);
+            headers.set("Client-Id", environment.getProperty("twitch-client-id"));
+
             HttpEntity<?> request = new HttpEntity<>(headers);
             ResponseEntity<StreamTwitchResponse> response = this.restTemplate.exchange(
                     API_STREAMS,
