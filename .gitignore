@@ -33,3 +33,4 @@ build/
 .vscode/
 
 quicknotes
+application.properties

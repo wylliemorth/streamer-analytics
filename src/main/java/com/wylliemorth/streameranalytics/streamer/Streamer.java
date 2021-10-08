@@ -116,4 +116,12 @@ public class Streamer implements Serializable {
     public void setDescription(String description) {
         this.description = description;
     }
+
+    public List<Stream> getStreams() {
+        return streams;
+    }
+
+    public void setStreams(List<Stream> streams) {
+        this.streams = streams;
+    }
 }
