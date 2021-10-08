@@ -41,6 +41,8 @@ public class TwitchRestService {
         String url = String.format(API_AUTH, clientId, clientSecret);
         HttpEntity<?> request = new HttpEntity<>(new HttpHeaders());
 
+        log.info("REQUEST STARTED Getting new oauth token...");
+
         try {
             AuthTwitchResponse response = this.restTemplate.postForObject(url, request, AuthTwitchResponse.class);
             if (response == null) {
@@ -54,19 +56,16 @@ public class TwitchRestService {
             return false;
         }
 
+        log.info("REQUEST SUCCESS Getting new oauth token!");
         return true;
     }
 
     public List<Streamer> getStreamers() {
         if (this.oauthToken == null) {
-            // Auth request to get token
-            log.info("Getting new oauth token...");
             if (!this.twitchAuthRequest()) {
                 log.error("Aborted fetching streamers!");
                 return null;
             }
-
-            log.info("Success getting new authentication token! " + this.oauthToken);
         }
 
         try {
@@ -82,7 +81,7 @@ public class TwitchRestService {
 
             StreamerTwitchResponse twitchResponse = response.getBody();
             if (twitchResponse == null) {
-                log.error("Get streamers: response body came null!");
+                log.error("Streamers response body came null!");
                 return null;
             }
 
@@ -96,15 +95,11 @@ public class TwitchRestService {
 
     public List<Stream> getActiveStreams() {
         if (this.oauthToken == null) {
-            // Auth request to get token
-            log.info("Getting new oauth token...");
             boolean success = this.twitchAuthRequest();
             if (!success) {
-                log.error("Aborted fetching streamers!");
+                log.error("Aborted fetching streams!");
                 return null;
             }
-
-            log.info("Success getting new authentication token!" + this.oauthToken);
         }
 
         try {
@@ -120,7 +115,7 @@ public class TwitchRestService {
 
             StreamTwitchResponse twitchResponse = response.getBody();
             if (twitchResponse == null) {
-                log.error("Response body came null!");
+                log.error("Stream response body came null!");
                 return null;
             }
 
